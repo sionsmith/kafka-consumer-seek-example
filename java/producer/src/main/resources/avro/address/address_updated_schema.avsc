@@ -1,0 +1,15 @@
+{
+  "type": "record",
+  "namespace": "sionsmith.demo.address",
+  "name": "Address",
+  "doc": "Sample address event",
+  "version": "1",
+  "fields": [
+    {"name": "subjectIdentifier", "type": "string", "default": "NONE"},
+    {"name": "payloadURI", "type": "string"},
+    {"name": "correlationID", "type": "string", "default": "NONE"},
+    {"name": "eventID", "type": "string", "default": "NONE"},
+    {"name": "eventDateTime", "type":"long", "logicalType": "timestamp-millis"},
+    {"name": "publishedDateTime", "type":"long", "logicalType": "timestamp-millis"}
+  ]
+}

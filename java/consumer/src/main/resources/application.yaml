@@ -1,0 +1,18 @@
+spring:
+  kafka:
+    consumer:
+      group-id: "test-group"
+      bootstrap-servers: "127.0.0.1:9092"
+      enable-auto-commit: false
+      auto-offset-reset: earliest
+      max-poll-records: 1
+      isolation-level: read_committed
+
+kafka:
+  avro:
+    consumer:
+      schema-registry-url: "http://127.0.0.1:8081"
+      specific-reader: true
+      topic-name: "test-topic"
+      group-id: "consumer-id-1"
+      value-subject-name-strategy: io.confluent.kafka.serializers.subject.TopicRecordNameStrategy
