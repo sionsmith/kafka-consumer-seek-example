@@ -14,8 +14,6 @@
      ```
      mvn -f java/producer/pom.xml schema-registry:register
      ``` 
-    If you have the schema registry ui running then you will see them at http://localhost:8000/
- 
 5. Run the Producer
     ```
     java -jar java/producer/target/demo-producer-0.0.1-SNAPSHOT.jar
