@@ -7,12 +7,20 @@ spring:
       auto-offset-reset: earliest
       max-poll-records: 1
       isolation-level: read_committed
+      key-serializer: org.apache.kafka.common.serialization.StringDeserializer
+      value-serializer: org.springframework.kafka.support.serializer.JsonDeserializer
 
 kafka:
-  avro:
-    consumer:
-      schema-registry-url: "http://127.0.0.1:8081"
-      specific-reader: true
-      topic-name: "test-topic"
-      group-id: "consumer-id-1"
-      value-subject-name-strategy: io.confluent.kafka.serializers.subject.TopicRecordNameStrategy
+  consumer:
+    bootstrap-servers: "127.0.0.1:9092"
+    error-topic-name: "shipment-sink-error"
+    topic-name: "shipment-service"
+    group-id: "consumer-id-1"
+    spring-json-trusted-packages: "*"
+    max-poll-records: "1"
+    key-serializer: org.apache.kafka.common.serialization.StringDeserializer
+    value-serializer: org.springframework.kafka.support.serializer.JsonDeserializer
+
+lambda:
+  function-name: "shipment-process-dev-index"
+  region: "eu-west-2"

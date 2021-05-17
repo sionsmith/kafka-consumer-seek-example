@@ -7,14 +7,15 @@ import org.springframework.boot.context.properties.ConfigurationProperties;
 /**
  * Kafka consumer config parameters
  */
-@ConfigurationProperties(prefix = "kafka.avro.consumer")
+@ConfigurationProperties(prefix = "kafka.consumer")
 @Getter
 @Setter
 public class KafkaConsumerProperties {
-    private String schemaRegistryUrl;
-    private Boolean specificReader = false;
     private String topicName;
     private String groupId;
-    private Class<?> keySubjectNameStrategy;
-    private Class<?> valueSubjectNameStrategy;
+    private Class<?> keySerializer;
+    private Class<?> valueSerializer;
+    private String bootstrapServers;
+    private String maxPollRecords;
+    private String springJsonTrustedPackages;
 }
