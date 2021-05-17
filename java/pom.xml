@@ -20,31 +20,14 @@
     <properties>
         <java.version>11</java.version>
         <avro.version>1.10.1</avro.version>
-        <confluent.version>5.5.1</confluent.version>
+        <confluent.version>6.1.1</confluent.version>
+        <amazon.awssdk.version>2.16.59</amazon.awssdk.version>
     </properties>
 
     <modules>
         <module>producer</module>
         <module>consumer</module>
     </modules>
-
-    <dependencyManagement>
-        <dependencies>
-
-            <dependency>
-                <groupId>org.apache.avro</groupId>
-                <artifactId>avro</artifactId>
-                <version>${avro.version}</version>
-            </dependency>
-
-            <dependency>
-                <groupId>io.confluent</groupId>
-                <artifactId>kafka-avro-serializer</artifactId>
-                <version>${confluent.version}</version>
-            </dependency>
-
-        </dependencies>
-    </dependencyManagement>
 
     <build>
         <plugins>
