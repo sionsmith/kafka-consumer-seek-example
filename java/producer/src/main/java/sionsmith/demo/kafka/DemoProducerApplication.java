@@ -1,18 +1,11 @@
 package sionsmith.demo.kafka;
 
-import static java.util.stream.Collectors.toList;
-import sionsmith.demo.address.Address;
+import com.fasterxml.jackson.databind.JsonNode;
+import com.fasterxml.jackson.databind.ObjectMapper;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.core.io.Resource;
 import sionsmith.demo.kafka.config.KafkaProducerProperties;
-import sionsmith.demo.kafka.services.AddressSender;
-import sionsmith.demo.kafka.services.KeyValuePair;
 
-import java.util.List;
-import java.util.concurrent.ExecutorService;
-import java.util.concurrent.Executors;
-import java.util.concurrent.TimeUnit;
-import java.util.stream.IntStream;
-
-import sionsmith.demo.kafka.services.metrics.AddressMetricsReporter;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.ApplicationArguments;
@@ -22,20 +15,24 @@ import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.boot.context.properties.EnableConfigurationProperties;
 import org.springframework.kafka.core.KafkaTemplate;
 
+import java.io.IOException;
+
 @Slf4j
 @SpringBootApplication
 @EnableConfigurationProperties({KafkaProducerProperties.class})
 public class DemoProducerApplication implements ApplicationRunner {
-    @Value("${kafka.avro.producer.topic-name}")
+
+    @Value("${kafka.producer.topic-name}")
     private String topicName;
 
-    final KafkaTemplate<String, Address> addressTemplate;
-    final AddressMetricsReporter addressMetricsReporter;
+    final KafkaTemplate<String, JsonNode> kafkaTemplate;
 
-    public DemoProducerApplication(KafkaTemplate<String, Address> addressTemplate,
-                                   AddressMetricsReporter addressMetricsReporter) {
-        this.addressTemplate = addressTemplate;
-        this.addressMetricsReporter = addressMetricsReporter;
+    @Value("classpath:sample_event.json")
+    private Resource sampleEvent;
+
+    @Autowired
+    public DemoProducerApplication(KafkaTemplate<String, JsonNode> kafkaTemplate) {
+        this.kafkaTemplate = kafkaTemplate;
     }
 
     public static void main(String[] args) {
@@ -43,35 +40,13 @@ public class DemoProducerApplication implements ApplicationRunner {
     }
 
     @Override
-    public void run(ApplicationArguments args) {
-        AddressSender addressSender = new AddressSender(addressTemplate, createAddressList(250000), topicName);
-
-        final ExecutorService executorService = Executors.newFixedThreadPool(4);
-
-        executorService.submit(addressSender);
-        executorService.submit(addressMetricsReporter);
-
-        Runtime.getRuntime().addShutdownHook(new Thread(() -> {
-            executorService.shutdown();
-            try {
-                log.info("Flushing and closing producer");
-                executorService.awaitTermination(200, TimeUnit.MILLISECONDS);
-
-            } catch (InterruptedException e) {
-                log.warn("shutting down", e);
-            }
-        }));
-
-    }
-
-    List<KeyValuePair<String, Address>> createAddressList(int size){
-            return IntStream.rangeClosed(1, size).mapToObj(i -> KeyValuePair.pair("Address-" + String.valueOf(i), Address.newBuilder()
-                .setEventID(String.valueOf(i))
-                .setCorrelationID(String.valueOf(i))
-                .setPayloadURI("localhost/payload")
-                .setEventDateTime(i)
-                .setPublishedDateTime(System.currentTimeMillis())
-                .setSubjectIdentifier("ADD-1")
-                .build())).collect(toList());
+    public void run(ApplicationArguments args) throws InterruptedException, IOException {
+        while (true) {
+            //load sample JSON data file
+            ObjectMapper objectMapper = new ObjectMapper();
+            JsonNode jsonNode = objectMapper.readTree(sampleEvent.getInputStream());
+            this.kafkaTemplate.send(topicName, jsonNode);
+            Thread.sleep(1000L);
         }
+    }
 }

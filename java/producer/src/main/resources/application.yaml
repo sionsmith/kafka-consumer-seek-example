@@ -3,7 +3,7 @@ spring:
     producer:
       acks: all
       key-serializer: org.apache.kafka.common.serialization.StringSerializer
-      value-serializer: io.confluent.kafka.serializers.KafkaAvroSerializer
+      value-serializer: org.springframework.kafka.support.serializer.JsonSerializer
       bootstrap-servers: 127.0.0.1:9092
       # The total bytes of memory the producer can use to buffer records waiting to be sent to the server.
       # If records are sent faster than they can be delivered to the server the producer will block for max.block.ms after which it will throw an exception.
@@ -19,11 +19,6 @@ spring:
       retry-backoff-ms: 100
 
 kafka:
-  avro:
-    producer:
-      schema-registry-url: http://127.0.0.1:8081
-      auto-register-schemas: false
-      use-latest-version: false
-      topic-name: test-topic
-      transaction-id-prefix: sionsmith
-      value-subject-name-strategy: io.confluent.kafka.serializers.subject.TopicRecordNameStrategy
+  producer:
+    retries: 0
+    topic-name: shipment-service

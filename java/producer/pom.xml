@@ -20,7 +20,6 @@
             <groupId>org.springframework.kafka</groupId>
             <artifactId>spring-kafka</artifactId>
         </dependency>
-
         <dependency>
             <groupId>org.springframework.boot</groupId>
             <artifactId>spring-boot-configuration-processor</artifactId>
@@ -33,21 +32,20 @@
         </dependency>
 
         <dependency>
-            <groupId>org.apache.avro</groupId>
-            <artifactId>avro</artifactId>
-        </dependency>
-
-        <dependency>
-            <groupId>io.confluent</groupId>
-            <artifactId>kafka-avro-serializer</artifactId>
-        </dependency>
-
-        <dependency>
             <groupId>org.springframework.boot</groupId>
             <artifactId>spring-boot-starter-test</artifactId>
             <scope>test</scope>
         </dependency>
-
+        <dependency>
+            <groupId>com.fasterxml.jackson.core</groupId>
+            <artifactId>jackson-core</artifactId>
+            <version>2.12.3</version>
+        </dependency>
+        <dependency>
+            <groupId>com.fasterxml.jackson.core</groupId>
+            <artifactId>jackson-databind</artifactId>
+            <version>2.12.3</version>
+        </dependency>
         <dependency>
             <groupId>org.springframework.kafka</groupId>
             <artifactId>spring-kafka-test</artifactId>
@@ -76,77 +74,6 @@
                         </goals>
                     </execution>
                 </executions>
-            </plugin>
-            <!--  Generates the Java classes from avro schemas. In the kafka-local-development we don't start with the schemas
-                  in Schema Registry.  At the time of compilation we generate them from local sources -->
-            <plugin>
-                <groupId>org.apache.avro</groupId>
-                <artifactId>avro-maven-plugin</artifactId>
-                <version>${avro.version}</version>
-                <executions>
-                    <execution>
-                        <phase>generate-sources</phase>
-                        <goals>
-                            <goal>schema</goal>
-                            <goal>protocol</goal>
-                            <goal>idl-protocol</goal>
-                        </goals>
-                        <configuration>
-                            <sourceDirectory>${project.basedir}/src/main/resources/avro</sourceDirectory>
-                            <createSetters>false</createSetters>
-            <!--  Need to treat as default CharSequence otherwise schemas don't match
-             see https://github.com/confluentinc/schema-registry/issues/868 I think this is not a solution in the case
-             where the schema which you want to use to serialize with is not the latest schema.
-             <stringType>String</stringType> -->
-                            <enableDecimalLogicalType>true</enableDecimalLogicalType>
-                            <fieldVisibility>private</fieldVisibility>
-                        </configuration>
-                    </execution>
-                </executions>
-            </plugin>
-
-            <!--force discovery of generated classes -->
-            <plugin>
-                <groupId>org.codehaus.mojo</groupId>
-                <artifactId>build-helper-maven-plugin</artifactId>
-                <version>3.0.0</version>
-                <executions>
-                    <execution>
-                        <id>add-source</id>
-                        <phase>generate-sources</phase>
-                        <goals>
-                            <goal>add-source</goal>
-                        </goals>
-                        <configuration>
-                            <sources>
-                                <source>target/generated-sources/avro</source>
-                            </sources>
-                        </configuration>
-                    </execution>
-                </executions>
-            </plugin>
-            <!-- If we have schema registry running the this plugin allows us to register the local schemas into the local Schema Registry.
-                 mvn io.confluent:kafka-schema-registry-maven-plugin:register
-                 In the Event Platform the schemas will already be present -->
-            <plugin>
-                <groupId>io.confluent</groupId>
-                <artifactId>kafka-schema-registry-maven-plugin</artifactId>
-                <version>5.5.1</version>
-                <configuration>
-                    <schemaRegistryUrls>
-                        <param>http://localhost:8081</param>
-                    </schemaRegistryUrls>
-                    <subjects>
-                        <test-topic-sionsmith.demo.address.Address>src/main/resources/avro/address/address_updated_schema.avsc</test-topic-sionsmith.demo.address.Address>
-                    </subjects>
-                    <outputDirectory>src/main/resources/avro/</outputDirectory>
-                    <subjectPatterns>
-                        <param>.*</param>
-                    </subjectPatterns>
-                </configuration>
-                <goals>
-                    <goal>register</goal>
-                </goals>
             </plugin>
         </plugins>
     </build>

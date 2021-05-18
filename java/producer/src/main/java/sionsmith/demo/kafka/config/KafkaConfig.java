@@ -1,8 +1,9 @@
 package sionsmith.demo.kafka.config;
 
-import sionsmith.demo.address.Address;
 import java.util.HashMap;
 import java.util.Map;
+
+import com.fasterxml.jackson.databind.JsonNode;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.kafka.clients.admin.NewTopic;
 import org.springframework.beans.factory.annotation.Value;
@@ -23,7 +24,7 @@ public class KafkaConfig {
 
     private final KafkaProperties kafkaProperties;
     private final KafkaProducerProperties kafkaProducerProperties;
-    @Value("${kafka.avro.producer.topic-name}")
+    @Value("${kafka.producer.topic-name}")
     String topicName;
 
     public KafkaConfig(KafkaProperties kafkaProperties, KafkaProducerProperties kafkaProducerProperties) {
@@ -31,43 +32,23 @@ public class KafkaConfig {
         this.kafkaProducerProperties = kafkaProducerProperties;
     }
 
-    // In the Event Platform the topics are created by the Event Platform
-    // This is just for creating locally in docker
-    @Bean
-    public NewTopic newTopic() {
-        return new NewTopic(topicName, 1, (short) 1);
-    }
-
     @Bean
     public Map<String, Object> producerConfigs() {
         Map<String, Object> props = new HashMap<>(kafkaProperties.buildProducerProperties());
 
         // set non-standard Kafka properties explicitly
-        props.put("schema.registry.url", kafkaProducerProperties.getSchemaRegistryUrl());
-        if (kafkaProducerProperties.getKeySubjectNameStrategy() != null) {
-            props.put("key.subject.name.strategy", kafkaProducerProperties.getKeySubjectNameStrategy());
-        }
-        props.put("value.subject.name.strategy", kafkaProducerProperties.getValueSubjectNameStrategy());
-
-        props.put("auto.register.schemas", kafkaProducerProperties.getAutoRegisterSchemas());
-        props.put("use.latest.version", kafkaProducerProperties.getUseLatestVersion());
 
         return props;
     }
 
+    @Bean
+    public ProducerFactory<String, JsonNode> producerFactory() {
+        return new DefaultKafkaProducerFactory<String, JsonNode>(producerConfigs());
+    }
 
     @Bean
-    public ProducerFactory<?, ?> producerFactory() {
-        var factory = new DefaultKafkaProducerFactory<>(producerConfigs());
-        factory.setTransactionIdPrefix(kafkaProducerProperties.getTransactionIdPrefix());
-        return factory;
-    }
-    @Bean
-    public KafkaTemplate<String, Address> addressTemplate(ProducerFactory<String, Address> pf) {
-        var template = new KafkaTemplate<>(pf);
-        // offers some basic error logging without calling context.  If you need to have the context then consider
-        // adding a callback on the ListenableFuture  of the send method of KafkaTemplate
-        template.setProducerListener(new LoggingProducerListener<>());
-        return template;
+    public KafkaTemplate<String, JsonNode> kafkaTemplate()
+    {
+        return new KafkaTemplate<String, JsonNode>(producerFactory());
     }
 }
