@@ -45,10 +45,6 @@ Reference for all available configuration parameters of the Kafka consumer and p
 - [Producer configs](https://kafka.apache.org/documentation/#producerconfigs)
 - [Consumer configs](https://kafka.apache.org/documentation/#consumerconfigs)
 
-Additional configuration when using the Schema Registry is set in the `KafkaConfig` class.
-
-[Reference - Configuration Options for Schema Registry](https://docs.confluent.io/platform/current/schema-registry/connect.html#configuration-options)
-
 ## Appendix
 ### Useful commands
 
