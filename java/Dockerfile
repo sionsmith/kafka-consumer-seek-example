@@ -3,10 +3,10 @@ WORKDIR /usr/src/
 
 COPY . /usr/src
 
-RUN mvn package -DskipTests
+RUN mvn -f java/consumer/pom.xml package -DskipTests
 
 FROM openjdk:11-jre-slim
 WORKDIR /app
-COPY --from=builder /usr/src/consumer/target/demo-consumer-0.0.1-SNAPSHOT.jar ./
+COPY --from=builder /usr/src/java/consumer/target/demo-consumer-0.0.1-SNAPSHOT.jar ./
 
 CMD ["java","-jar","demo-consumer-0.0.1-SNAPSHOT.jar"]
