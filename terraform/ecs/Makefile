@@ -17,7 +17,7 @@ check: init
 	terraform plan -detailed-exitcode
 
 destroy: init
-	terraform destroy -force
+	terraform destroy --auto-approve
 
 docs:
 	terraform-docs md . > README.md
