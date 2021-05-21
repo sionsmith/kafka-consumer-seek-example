@@ -12,5 +12,5 @@ WORKDIR /usr/local/bin/
 COPY --from=builder /usr/src/consumer/target/demo-consumer-0.0.1-SNAPSHOT.jar ./
 
 COPY .. /app
-
+EXPOSE 8080
 CMD ["java","-jar","demo-consumer-0.0.1-SNAPSHOT.jar"]
