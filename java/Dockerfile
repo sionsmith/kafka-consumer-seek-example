@@ -1,7 +1,7 @@
 FROM maven:3.6-jdk-11-slim as builder
 WORKDIR /usr/src/
 
-COPY .. /usr/src
+COPY . /usr/src
 
 RUN mvn package -DskipTests
 
