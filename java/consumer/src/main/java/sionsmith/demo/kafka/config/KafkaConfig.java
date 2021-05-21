@@ -23,14 +23,20 @@ import java.util.Map;
 @Slf4j
 public class KafkaConfig {
     private final KafkaProperties kafkaProperties;
+    private final KafkaConsumerProperties kafkaConsumerProperties;
 
     public KafkaConfig(KafkaProperties kafkaProperties, KafkaConsumerProperties kafkaConsumerProperties) {
         this.kafkaProperties = kafkaProperties;
+        this.kafkaConsumerProperties = kafkaConsumerProperties;
     }
 
     @Bean
     public Map<String, Object> consumerConfigs() {
         Map<String, Object> props = new HashMap<>(kafkaProperties.buildConsumerProperties());
+        props.put("security.protocol", kafkaConsumerProperties.getSecurityProtocol());
+        props.put("sasl.jaas.config", kafkaConsumerProperties.getSaslJaasConfig());
+        props.put("sasl.mechanism", kafkaConsumerProperties.getSaslMechanism());
+
         return props;
     }
 

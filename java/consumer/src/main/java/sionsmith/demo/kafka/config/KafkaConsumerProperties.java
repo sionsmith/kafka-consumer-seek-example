@@ -18,4 +18,7 @@ public class KafkaConsumerProperties {
     private String bootstrapServers;
     private String maxPollRecords;
     private String springJsonTrustedPackages;
+    private String saslJaasConfig;
+    private String securityProtocol;
+    private String saslMechanism;
 }

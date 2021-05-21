@@ -1,16 +1,12 @@
-FROM adoptopenjdk:15-jdk-hotspot as builder
-
+FROM maven:3.6-jdk-11-slim as builder
 WORKDIR /usr/src/
 
 COPY .. /usr/src
-RUN ./mvnw package
 
+RUN mvn package -DskipTests
 
-FROM adoptopenjdk:15-jre-hotspot
-WORKDIR /usr/local/bin/
-
+FROM openjdk:11-jre-slim
+WORKDIR /app
 COPY --from=builder /usr/src/consumer/target/demo-consumer-0.0.1-SNAPSHOT.jar ./
 
-COPY .. /app
-EXPOSE 8080
 CMD ["java","-jar","demo-consumer-0.0.1-SNAPSHOT.jar"]

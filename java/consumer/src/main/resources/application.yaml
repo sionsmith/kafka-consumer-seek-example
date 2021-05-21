@@ -20,7 +20,18 @@ kafka:
     max-poll-records: "1"
     key-serializer: org.apache.kafka.common.serialization.StringDeserializer
     value-serializer: org.springframework.kafka.support.serializer.JsonDeserializer
+    security-protocol: SASL_SSL
+    sasl-jaas-config: org.apache.kafka.common.security.plain.PlainLoginModule required username="${CCLOUD_API_KEY}" password="${CCLOUD_API_SECRET}";
+    ssl-endpoint-identification-algorithm: https
+    sasl-mechanism: PLAIN
 
 lambda:
   function-name: "shipment-process-dev-index"
   region: "eu-west-2"
+
+endpoints.jmx.enabled: true
+spring.jmx.enabled: true
+
+metrics.kafka:
+  consumer.enabled: true
+  producer.enabled: true

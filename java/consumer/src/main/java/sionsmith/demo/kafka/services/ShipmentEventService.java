@@ -45,6 +45,10 @@ public class ShipmentEventService {
         shipmentTopicProperties.put("value.deserializer", kafkaConsumerProperties.getValueSerializer());
         shipmentTopicProperties.put("spring.json.trusted.packages", kafkaConsumerProperties.getSpringJsonTrustedPackages());
         shipmentTopicProperties.put("max.poll.records", kafkaConsumerProperties.getMaxPollRecords());
+        shipmentTopicProperties.put("security.protocol", kafkaConsumerProperties.getSecurityProtocol());
+        shipmentTopicProperties.put("sasl.jaas.config", kafkaConsumerProperties.getSaslJaasConfig());
+        shipmentTopicProperties.put("sasl.mechanism", kafkaConsumerProperties.getSaslMechanism());
+
 
     }
 

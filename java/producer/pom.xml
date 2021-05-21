@@ -77,30 +77,4 @@
             </plugin>
         </plugins>
     </build>
-    <!--necessary to resolve confluent dependencies-->
-    <repositories>
-        <repository>
-            <id>confluent</id>
-            <url>http://packages.confluent.io/maven/</url>
-        </repository>
-    </repositories>
-    <!--Necessary to resolve confluent kafka-schema-registry-maven-plugin dependencies-->
-    <pluginRepositories>
-        <pluginRepository>
-            <releases>
-                <enabled>true</enabled>
-            </releases>
-            <id>maven-confluent</id>
-            <name>confluent</name>
-            <url>http://packages.confluent.io/maven/</url>
-        </pluginRepository>
-        <pluginRepository>
-            <releases>
-                <enabled>true</enabled>
-            </releases>
-            <id>maven-mulesoft-third-party</id>
-            <name>Mulesoft Repository</name>
-            <url>https://repository.mulesoft.org/nexus/content/repositories/public/</url>
-        </pluginRepository>
-    </pluginRepositories>
 </project>
