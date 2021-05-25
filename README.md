@@ -22,6 +22,7 @@
     ```shell
     $ export AWS_ACCESS_KEY_ID=xxx
     $ export AWS_SECRET_ACCESS_KEY=xxx
+    $ export SPRING.KAFKA.CONSUMER.BOOTSTRAP-SERVERS=127.0.0.1:9092
     $ export SPRING.KAFKA.CONSUMER.ERROR-TOPIC-NAME=shipment-sink-error
     $ export LAMBDA.REGION=eu-west-2
     $ export LAMBDA.FUNCTION-NAME=shipment-process-dev-index
