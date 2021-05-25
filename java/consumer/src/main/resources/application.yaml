@@ -1,4 +1,6 @@
 spring:
+  json:
+    use.type.headers: false
   kafka:
     consumer:
       group-id: "error-retry-consumer-group-1"
