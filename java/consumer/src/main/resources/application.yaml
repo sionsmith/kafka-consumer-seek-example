@@ -15,6 +15,7 @@ spring:
       sasl-mechanism: PLAIN
       error-topic-name: "shipment-service-lambda-sink-error"
       spring-json-trusted-packages: "*"
+      retry-consumer-group-id: "retry-failed-sink-group-1"
 
 lambda:
   function-name: "shipment-process-dev-index"

@@ -31,13 +31,13 @@ public class ErrorEventConsumer {
             Long offset = Long.parseLong(errorEvent.getHeaderValue(ErrorEvent.INPUT_RECORD_OFFSET));
             Integer partition = Integer.parseInt(errorEvent.getHeaderValue(ErrorEvent.INPUT_RECORD_PARTITION));
             String sourceTopic = errorEvent.getHeaderValue(ErrorEvent.INPUT_RECORD_TOPIC);
-            log.info("Attempted to re-process message offset: " + offset + " on partition: " + partition);
+            log.info("Attempted to re-process message from topic: " + sourceTopic + " using offset: " + offset + " on partition: " + partition);
             shipmentEventService.reProcessFailedEvent(sourceTopic, offset, partition);
 
         } catch (JsonProcessingException e) {
-            e.printStackTrace();
+            log.error("Failed parses Json message.");
         } catch (Exception e) {
-            e.printStackTrace();
+            log.error("Failed re process message caused by: ", e.getMessage());
         }
     }
 }

@@ -38,6 +38,7 @@ public class ShipmentEventService {
                 .build();
         shipmentTopicProperties = new Properties();
         shipmentTopicProperties.put("bootstrap.servers", kafkaConsumerProperties.getBootstrapServers());
+        shipmentTopicProperties.put("group.id", kafkaConsumerProperties.getRetryConsumerGroupId());
         shipmentTopicProperties.put("key.deserializer", kafkaConsumerProperties.getKeySerializer());
         shipmentTopicProperties.put("value.deserializer", kafkaConsumerProperties.getValueSerializer());
         shipmentTopicProperties.put("spring.json.trusted.packages", kafkaConsumerProperties.getSpringJsonTrustedPackages());
