@@ -1,7 +1,7 @@
 spring:
   kafka:
     consumer:
-      group-id: "test-group"
+      group-id: "error-retry-consumer-group-1"
       bootstrap-servers: "127.0.0.1:9092"
       enable-auto-commit: false
       auto-offset-reset: earliest
@@ -9,21 +9,12 @@ spring:
       isolation-level: read_committed
       key-serializer: org.apache.kafka.common.serialization.StringDeserializer
       value-serializer: org.springframework.kafka.support.serializer.JsonDeserializer
-
-kafka:
-  consumer:
-    bootstrap-servers: "127.0.0.1:9092"
-    error-topic-name: "shipment-sink-error"
-    topic-name: "shipment-service"
-    group-id: "consumer-id-1"
-    spring-json-trusted-packages: "*"
-    max-poll-records: "1"
-    key-serializer: org.apache.kafka.common.serialization.StringDeserializer
-    value-serializer: org.springframework.kafka.support.serializer.JsonDeserializer
-    security-protocol: SASL_SSL
-    sasl-jaas-config: org.apache.kafka.common.security.plain.PlainLoginModule required username="${CCLOUD_API_KEY}" password="${CCLOUD_API_SECRET}";
-    ssl-endpoint-identification-algorithm: https
-    sasl-mechanism: PLAIN
+      security-protocol: SASL_SSL
+      sasl-jaas-config: org.apache.kafka.common.security.plain.PlainLoginModule required username="${CCLOUD_API_KEY}" password="${CCLOUD_API_SECRET}";
+      ssl-endpoint-identification-algorithm: https
+      sasl-mechanism: PLAIN
+      error-topic-name: "shipment-service-lambda-sink-error"
+      spring-json-trusted-packages: "*"
 
 lambda:
   function-name: "shipment-process-dev-index"

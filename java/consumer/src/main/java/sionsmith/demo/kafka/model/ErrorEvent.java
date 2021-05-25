@@ -21,6 +21,7 @@ public class ErrorEvent implements Serializable {
 
     public static final String INPUT_RECORD_OFFSET = "input_record_offset";
     public static final String INPUT_RECORD_PARTITION = "input_record_partition";
+    public static final String INPUT_RECORD_TOPIC= "input_record_topic";
 
     @JsonProperty("topic")
     private String topic;

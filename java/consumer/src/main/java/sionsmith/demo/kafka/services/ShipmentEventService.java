@@ -30,9 +30,6 @@ public class ShipmentEventService {
     @Autowired
     private KafkaConsumerProperties kafkaConsumerProperties;
 
-    @Value("${kafka.consumer.topic-name}")
-    private String sourceTopic;
-
     private Properties shipmentTopicProperties;
     @PostConstruct
     private void init() {
@@ -52,7 +49,7 @@ public class ShipmentEventService {
 
     }
 
-    public void reProcessFailedEvent(Long offset, Integer partition) throws Exception {
+    public void reProcessFailedEvent(String sourceTopic, Long offset, Integer partition) throws Exception {
         try (KafkaPicker kafkaPicker = new KafkaPicker(sourceTopic, shipmentTopicProperties)) {
             JsonNode payload = (JsonNode) kafkaPicker.pick(offset, partition);
             log.info("Retrived payload from offset: " + " Payload: " + payload.toPrettyString());

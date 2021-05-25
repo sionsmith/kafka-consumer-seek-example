@@ -7,7 +7,7 @@ import org.springframework.boot.context.properties.ConfigurationProperties;
 /**
  * Kafka consumer config parameters
  */
-@ConfigurationProperties(prefix = "kafka.consumer")
+@ConfigurationProperties(prefix = "spring.kafka.consumer")
 @Getter
 @Setter
 public class KafkaConsumerProperties {
