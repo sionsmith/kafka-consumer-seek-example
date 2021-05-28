@@ -52,7 +52,7 @@ public class ShipmentEventService {
 
     public void reProcessFailedEvent(String sourceTopic, Long offset, Integer partition) throws Exception {
         try (KafkaPicker kafkaPicker = new KafkaPicker(sourceTopic, shipmentTopicProperties)) {
-            JsonNode payload = (JsonNode) kafkaPicker.pick(offset, partition);
+            JsonNode payload = kafkaPicker.pick(offset, partition);
             log.info("Retrived payload from offset: " + " Payload: " + payload.toPrettyString());
             for (int retries = 0; ; retries++) {
                 try {
