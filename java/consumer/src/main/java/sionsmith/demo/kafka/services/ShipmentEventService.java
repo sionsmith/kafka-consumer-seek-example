@@ -39,8 +39,8 @@ public class ShipmentEventService {
         shipmentTopicProperties = new Properties();
         shipmentTopicProperties.put("bootstrap.servers", kafkaConsumerProperties.getBootstrapServers());
         shipmentTopicProperties.put("group.id", kafkaConsumerProperties.getRetryConsumerGroupId());
-        shipmentTopicProperties.put("key.deserializer", kafkaConsumerProperties.getKeySerializer());
-        shipmentTopicProperties.put("value.deserializer", kafkaConsumerProperties.getValueSerializer());
+        shipmentTopicProperties.put("key.deserializer", io.confluent.kafka.serializers.KafkaJsonDeserializer.class);
+        shipmentTopicProperties.put("value.deserializer", io.confluent.kafka.serializers.KafkaJsonDeserializer.class);
         shipmentTopicProperties.put("spring.json.trusted.packages", kafkaConsumerProperties.getSpringJsonTrustedPackages());
         shipmentTopicProperties.put("max.poll.records", kafkaConsumerProperties.getMaxPollRecords());
         shipmentTopicProperties.put("security.protocol", kafkaConsumerProperties.getSecurityProtocol());
