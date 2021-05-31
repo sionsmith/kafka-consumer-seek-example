@@ -1,7 +1,10 @@
 package sionsmith.demo.kafka.services;
 
-import com.fasterxml.jackson.databind.JsonNode;
+import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.databind.node.ObjectNode;
 import lombok.extern.slf4j.Slf4j;
+import org.apache.kafka.clients.consumer.ConsumerRecord;
+import org.json.JSONArray;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
@@ -14,6 +17,7 @@ import software.amazon.awssdk.services.lambda.model.InvokeResponse;
 import software.amazon.awssdk.services.lambda.model.LambdaException;
 
 import javax.annotation.PostConstruct;
+import java.util.LinkedHashMap;
 import java.util.Properties;
 
 @Service
@@ -52,10 +56,12 @@ public class ShipmentEventService {
 
     public void reProcessFailedEvent(String sourceTopic, Long offset, Integer partition) throws Exception {
         try (KafkaPicker kafkaPicker = new KafkaPicker(sourceTopic, shipmentTopicProperties)) {
-            JsonNode payload = kafkaPicker.pick(offset, partition);
-            log.info("Retrived payload from offset: " + " Payload: " + payload.toPrettyString());
+            ConsumerRecord<String, LinkedHashMap> record = kafkaPicker.pick(offset, partition);
+            log.info("Retrived payload from offset: " + " Payload: " + record.value().toString());
             for (int retries = 0; ; retries++) {
                 try {
+                    //build payload object as Lambda expects (same as sink connector)
+                    JSONArray payload = buildPayloadArray(record);
                     //Invoke the Lambda function
                     InvokeResponse response = client.invoke(InvokeRequest.builder()
                             .functionName(lambdaFunctionName)
@@ -78,5 +84,21 @@ public class ShipmentEventService {
             log.error("Failed to read message from offset: " + offset + " partition: " + partition + " Caused by: ", e);
             throw e;
         }
+    }
+
+    private JSONArray buildPayloadArray(ConsumerRecord<String, LinkedHashMap> record) {
+        ObjectMapper mapper = new ObjectMapper();
+        ObjectNode rootNode = mapper.createObjectNode();
+
+        ObjectNode childNode1 = mapper.createObjectNode();
+        childNode1.put("timestamp", record.timestamp());
+        childNode1.put("topic", record.topic());
+        childNode1.put("partition", record.partition());
+        childNode1.put("offset", record.offset());
+        childNode1.put("key", record.key());
+        childNode1.put("value", mapper.valueToTree(record.value()));
+        rootNode.set("payload", childNode1);
+
+        return new JSONArray().put(rootNode);
     }
 }
