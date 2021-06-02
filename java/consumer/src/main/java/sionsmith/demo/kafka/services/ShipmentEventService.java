@@ -2,6 +2,7 @@ package sionsmith.demo.kafka.services;
 
 import com.fasterxml.jackson.databind.JsonNode;
 import lombok.extern.slf4j.Slf4j;
+import org.json.JSONArray;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
@@ -36,9 +37,10 @@ public class ShipmentEventService {
         client = LambdaClient.builder()
                 .region(Region.of(awsRegion))
                 .build();
+
         shipmentTopicProperties = new Properties();
         shipmentTopicProperties.put("bootstrap.servers", kafkaConsumerProperties.getBootstrapServers());
-        shipmentTopicProperties.put("group.id", kafkaConsumerProperties.getRetryConsumerGroupId());
+        shipmentTopicProperties.put("group.id", kafkaConsumerProperties.getSourceTopicPickerConsumerGroupId());
         shipmentTopicProperties.put("key.deserializer", io.confluent.kafka.serializers.KafkaJsonDeserializer.class);
         shipmentTopicProperties.put("value.deserializer", io.confluent.kafka.serializers.KafkaJsonDeserializer.class);
         shipmentTopicProperties.put("spring.json.trusted.packages", kafkaConsumerProperties.getSpringJsonTrustedPackages());
@@ -46,8 +48,6 @@ public class ShipmentEventService {
         shipmentTopicProperties.put("security.protocol", kafkaConsumerProperties.getSecurityProtocol());
         shipmentTopicProperties.put("sasl.jaas.config", kafkaConsumerProperties.getSaslJaasConfig());
         shipmentTopicProperties.put("sasl.mechanism", kafkaConsumerProperties.getSaslMechanism());
-
-
     }
 
     public void reProcessFailedEvent(String sourceTopic, Long offset, Integer partition) throws Exception {
@@ -60,7 +60,7 @@ public class ShipmentEventService {
                     InvokeResponse response = client.invoke(InvokeRequest.builder()
                             .functionName(lambdaFunctionName)
                             .invocationType("RequestResponse")
-                            .payload(SdkBytes.fromUtf8String(payload.toString()))
+                            .payload(SdkBytes.fromUtf8String(new JSONArray().put(payload).toString()))
                             .build());
 
                     log.debug("Lambda Response: " + response.statusCode());
@@ -77,6 +77,30 @@ public class ShipmentEventService {
         } catch (Exception e) {
             log.error("Failed to read message from offset: " + offset + " partition: " + partition + " Caused by: ", e);
             throw e;
+        }
+    }
+
+    public void reProcessDlqMessage(JsonNode message) {
+        for (int retries = 0; ; retries++) {
+            try {
+                //Invoke the Lambda function
+                InvokeResponse response = client.invoke(InvokeRequest.builder()
+                        .functionName(lambdaFunctionName)
+                        .invocationType("RequestResponse")
+                        .payload(SdkBytes.fromUtf8String(message.toString()))
+                        .build());
+
+                log.debug("Lambda Response: " + response.statusCode());
+                break;
+            } catch (LambdaException e) {
+                if (retries < 3) {
+                    log.warn("Lambda failed. It will be retried.");
+                    continue; // try calling the lambda again
+                } else {
+                    log.error("Failed to process message from the DLQ topic.", e);
+                    throw e;
+                }
+            }
         }
     }
 }

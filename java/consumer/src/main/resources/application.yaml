@@ -3,7 +3,7 @@ spring:
     use.type.headers: false
   kafka:
     consumer:
-      group-id: "error-retry-consumer-group-1"
+      group-id: "error-topic-consumer-group"
       bootstrap-servers: "127.0.0.1:9092"
       enable-auto-commit: false
       auto-offset-reset: earliest
@@ -16,8 +16,12 @@ spring:
       ssl-endpoint-identification-algorithm: https
       sasl-mechanism: PLAIN
       error-topic-name: "shipment-service-lambda-sink-error"
+      dlq-topic-name: "infoaxs.connectors.shipment-service-lambda-sink-dlq"
       spring-json-trusted-packages: "*"
-      retry-consumer-group-id: "retry-failed-sink-group-1"
+      source-topic-picker-consumer-group-id: "source-topic-picker-consumer-group"
+      dlq-consumer-group-id: "dlq-consumer-group"
+      error-drain-enabled: true
+      dlq-drain-enabled: true
 
 lambda:
   function-name: "shipment-process-dev-index"
