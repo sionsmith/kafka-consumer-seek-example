@@ -21,5 +21,5 @@ public class KafkaConsumerProperties {
     private String saslJaasConfig;
     private String securityProtocol;
     private String saslMechanism;
-    private String retryConsumerGroupId;
+    private String sourceTopicPickerConsumerGroupId;
 }

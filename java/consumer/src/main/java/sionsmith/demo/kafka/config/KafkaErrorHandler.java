@@ -4,6 +4,8 @@ import lombok.extern.slf4j.Slf4j;
 import org.apache.kafka.clients.consumer.Consumer;
 import org.apache.kafka.clients.consumer.ConsumerRecord;
 import org.apache.kafka.common.TopicPartition;
+import org.springframework.core.task.SimpleAsyncTaskExecutor;
+import org.springframework.kafka.KafkaException;
 import org.springframework.kafka.listener.ContainerAwareErrorHandler;
 import org.springframework.kafka.listener.MessageListenerContainer;
 import org.springframework.kafka.support.serializer.DeserializationException;
@@ -20,26 +22,46 @@ public class KafkaErrorHandler implements ContainerAwareErrorHandler {
                        List<ConsumerRecord<?, ?>> records,
                        Consumer<?, ?> consumer,
                        MessageListenerContainer container) {
-
-        doSeeks(records, consumer);
-
         if (!records.isEmpty()) {
             ConsumerRecord<?, ?> record = records.get(0);
             String topic = record.topic();
             long offset = record.offset();
             int partition = record.partition();
             if (thrownException.getClass().equals(DeserializationException.class)) {
+                // Move forward
+                doSeeks(records, consumer);
+
                 DeserializationException exception = (DeserializationException) thrownException;
                 String malformedMessage = new String(exception.getData());
                 log.info("Skipping message with topic {} and offset {} " +
                         "- malformed message: {} , exception: {}", topic, offset, malformedMessage, exception.getLocalizedMessage());
             } else {
-                log.info("Skipping message with topic {} - offset {} - partition {} - exception {}", topic, offset, partition,
-                        thrownException);
+                log.error("Consumer exception. Stopping consumption. Cause: {}", thrownException.getMessage());
+                this.stopContainer(container, thrownException);
             }
         } else {
-            log.info("Consumer exception - cause: {}", thrownException.getMessage());
+            log.error("Consumer exception. Stopping consumption. Cause: {}", thrownException.getMessage());
+            this.stopContainer(container, thrownException);
         }
+    }
+
+    private void stopContainer(MessageListenerContainer container, Exception thrownException) {
+        // The following is copied from org.springframework.kafka.listener.ContainerStoppingErrorHandler
+        var executor = new SimpleAsyncTaskExecutor();
+        executor.execute(container::stop);
+
+        // isRunning is false before the container.stop() waits for listener thread
+        int n = 0;
+        while (container.isRunning() && n++ < 100) { // NOSONAR magic #
+            try {
+                Thread.sleep(100); // NOSONAR magic #
+            }
+            catch (InterruptedException e) {
+                Thread.currentThread().interrupt();
+                break;
+            }
+        }
+        throw new KafkaException("Stopped container", KafkaException.Level.ERROR, thrownException);
     }
 
 

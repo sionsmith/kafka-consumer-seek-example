@@ -3,7 +3,7 @@ spring:
     use.type.headers: false
   kafka:
     consumer:
-      group-id: "error-retry-consumer-group-1"
+      group-id: "error-topic-drain-consumer-group"
       bootstrap-servers: "127.0.0.1:9092"
       enable-auto-commit: false
       auto-offset-reset: earliest
@@ -15,13 +15,17 @@ spring:
       sasl-jaas-config: org.apache.kafka.common.security.plain.PlainLoginModule required username="${CCLOUD_API_KEY}" password="${CCLOUD_API_SECRET}";
       ssl-endpoint-identification-algorithm: https
       sasl-mechanism: PLAIN
+      dlq-topic-name: "shipment-service-lambda-sink-dlq"
       error-topic-name: "shipment-service-lambda-sink-error"
       spring-json-trusted-packages: "*"
-      retry-consumer-group-id: "retry-failed-sink-group-1"
+      source-topic-picker-consumer-group-id: "source-topic-picker-consumer-group"
+      dlq-consumer-group-id: "dlq-topic-drain-consumer-group"
+      error-drain-enabled: true
+      dlq-drain-enabled: false
 
 lambda:
   function-name: "shipment-process-dev-index"
-  region: "eu-west-2"
+  region: "eu-west-1"
 
 endpoints.jmx.enabled: true
 spring.jmx.enabled: true

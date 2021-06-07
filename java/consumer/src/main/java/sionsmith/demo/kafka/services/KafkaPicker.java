@@ -1,5 +1,6 @@
 package sionsmith.demo.kafka.services;
 
+import lombok.extern.slf4j.Slf4j;
 import org.apache.kafka.clients.consumer.ConsumerRecord;
 import org.apache.kafka.clients.consumer.ConsumerRecords;
 import org.apache.kafka.clients.consumer.KafkaConsumer;
@@ -8,8 +9,10 @@ import org.apache.kafka.common.TopicPartition;
 import java.time.Duration;
 import java.util.Collections;
 import java.util.LinkedHashMap;
+import java.util.NoSuchElementException;
 import java.util.Properties;
 
+@Slf4j
 public class KafkaPicker implements AutoCloseable {
 
     private static final Duration POLL_TIMEOUT = Duration.ofSeconds(1);
@@ -28,7 +31,13 @@ public class KafkaPicker implements AutoCloseable {
         consumer.seek(topicPartition, offset);
 
         ConsumerRecords<String, LinkedHashMap> records = consumer.poll(POLL_TIMEOUT);
-        return records.iterator().next();
+        try {
+            return records.iterator().next();
+        } catch (NoSuchElementException e) {
+            log.error(String.format("There is no message with offset: %d, partition: %d in the source topic.",
+                    offset, partition), e);
+            throw e;
+        }
     }
 
     public void close() {
