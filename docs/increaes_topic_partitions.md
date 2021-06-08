@@ -5,7 +5,7 @@ The steps to increase the number of partitions in a topic hosted on Confluent Cl
 1. Create topic (optional)
 ```shell
 $ ccloud login --save
-$ ccloud kafka topic create test-topic --partitions 4
+$ ccloud kafka topic create test-topic --partitions 3
 ```
 
 2. Describe topic 
